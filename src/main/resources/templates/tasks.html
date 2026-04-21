@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Tareas — Compañeros</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/x-icon" th:href="@{/favicon.ico}">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        (function(){
+            var t=localStorage.getItem('theme'), d=window.matchMedia('(prefers-color-scheme:dark)').matches;
+            if(t==='dark-mode'||(!t&&d)) document.documentElement.classList.add('dark-mode');
+        })();
+    </script>
+</head>
+<body>
+
+<div class="app-layout">
+
+    <!-- Navigation -->
+    <nav class="app-nav">
+        <a th:href="@{/}" class="nav-brand">
+            <img th:src="@{/images/logo.png}" alt="Logo" class="nav-brand-logo" onerror="this.style.display='none'">
+            <span class="nav-brand-text">Compañeros</span>
+        </a>
+        <div class="nav-links">
+            <a th:href="@{/tasks}" class="nav-link active">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"></path><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
+                <span>Tareas</span>
+            </a>
+            <a th:href="@{/shopping}" th:if="${currentUser.house == null or currentUser.house.shoppingEnabled}" class="nav-link">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
+                <span>Compras</span>
+            </a>
+            <a th:href="@{/expenses}" th:if="${currentUser.house == null or currentUser.house.expensesEnabled}" class="nav-link">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+                <span>Gastos</span>
+            </a>
+            <a th:href="@{/house}" class="nav-link" th:if="${currentUser.house != null}">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+                <span>Mi Casa</span>
+            </a>
+            <a th:href="@{/settings}" class="nav-link">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                <span>Ajustes</span>
+            </a>
+        </div>
+        <div class="nav-notif-wrapper" id="nav-notif-wrapper">
+            <button type="button" class="nav-notif-btn" id="bell-btn" onclick="toggleNotifPanel()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+                <span>Notificaciones</span>
+                <span class="notif-badge" id="notif-badge" style="display:none">0</span>
+            </button>
+            <div class="notif-panel" id="notif-panel">
+                <div class="notif-panel-head">
+                    <span class="notif-panel-title">Notificaciones</span>
+                    <button type="button" class="notif-mark-all-btn" id="mark-all-btn" onclick="markAllNotifRead()" style="display:none">Marcar como leídas</button>
+                </div>
+                <div class="notif-list" id="notif-list"></div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Content -->
+    <div class="app-content">
+        <div class="container">
+
+            <!-- Header -->
+            <div class="page-header">
+                <h1>Hola, <span th:text="${currentUser != null ? currentUser.name : 'Compañero'}">Compañero</span> 👋</h1>
+                <p th:text="${#temporals.format(#temporals.createNow(), 'EEEE, d MMMM yyyy')}">Lunes, 1 Enero 2024</p>
+            </div>
+
+            <!-- Stats -->
+            <div class="stats-grid">
+                <div class="stat-card stat-primary">
+                    <div class="stat-title">Pendientes</div>
+                    <div class="stat-value" th:text="${pendingTasksCount}">0</div>
+                    <div class="stat-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
+                    </div>
+                </div>
+                <div class="stat-card stat-success">
+                    <div class="stat-title">Completadas</div>
+                    <div class="stat-value" th:text="${completedTasksCount}">0</div>
+                    <div class="stat-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    </div>
+                </div>
+                <div class="stat-card stat-danger">
+                    <div class="stat-title">Vencidas</div>
+                    <div class="stat-value" th:text="${overdueTasksCount}" style="color: var(--danger);">0</div>
+                    <div class="stat-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabs -->
+            <div class="tab-bar">
+                <a th:href="@{/tasks(tab='active')}" class="tab-btn" th:classappend="${tab == 'active' or tab == null} ? ' active' : ''">Activas</a>
+                <a th:href="@{/tasks(tab='archived')}" class="tab-btn" th:classappend="${tab == 'archived'} ? ' active' : ''">
+                    Archivo
+                    <span th:if="${!#lists.isEmpty(archivedTasks)}" class="tab-count" th:text="${archivedTasks.size()}">0</span>
+                </a>
+            </div>
+
+            <!-- Main grid -->
+            <div class="main-grid">
+
+                <!-- Active tasks -->
+                <div th:if="${tab == 'active' or tab == null}">
+
+                    <!-- Add task form -->
+                    <form th:action="@{/tasks/add}" th:object="${newTask}" method="post" class="add-form">
+                        <div class="add-form-row">
+                            <input type="text" th:field="*{description}" class="form-control"
+                                   placeholder="Añadir nueva tarea…" required
+                                   id="task-description-input"
+                                   oninput="onTaskTitleInput(this)"
+                                   autocomplete="off">
+                            <button type="submit" class="btn btn-primary btn-sm" id="task-submit-btn" style="display:none;">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                                Añadir
+                            </button>
+                        </div>
+                        <div class="add-form-options" id="task-extra-fields" style="display:none; margin-top:8px;">
+                            <select th:field="*{priority}" class="select-control">
+                                <option value="HIGH">🔴 Alta prioridad</option>
+                                <option value="MEDIUM" selected>🟡 Media prioridad</option>
+                                <option value="LOW">🟢 Baja prioridad</option>
+                            </select>
+                            <input type="date" th:field="*{dueDate}" class="form-control">
+                            <select th:field="*{assignedUserId}" class="select-control">
+                                <option value="">Asignar a...</option>
+                                <option th:each="u : ${users}" th:value="${u.id}" th:text="${u.name}"></option>
+                            </select>
+                        </div>
+                    </form>
+                    <script>
+                    function onTaskTitleInput(input) {
+                        var hasText = input.value.trim().length > 0;
+                        document.getElementById('task-extra-fields').style.display = hasText ? 'flex' : 'none';
+                        document.getElementById('task-submit-btn').style.display  = hasText ? 'flex' : 'none';
+                    }
+                    </script>
+
+                    <!-- Task list -->
+                    <div class="task-list">
+                        <div th:each="task : ${tasks}"
+                             class="task-card"
+                             th:classappend="${task.completed ? ' completed-card' : ''} + ' priority-' + ${#strings.toLowerCase(task.priority.name())}">
+
+                            <div class="task-info">
+                                <a th:href="@{/tasks/toggle/{id}(id=${task.id})}"
+                                   class="task-check"
+                                   th:classappend="${task.completed} ? ' completed' : ''">
+                                    <svg th:if="${task.completed}" xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                </a>
+
+                                <div class="task-details">
+                                    <p class="task-description"
+                                       th:text="${task.description}"
+                                       th:style="${task.completed} ? 'text-decoration:line-through;' : ''">
+                                        Descripción
+                                    </p>
+                                    <div class="task-meta">
+                                        <span class="badge"
+                                              th:classappend="'badge-' + ${task.priority.cssClass}"
+                                              th:text="${task.priority.displayValue}">Media</span>
+
+                                        <span th:if="${task.dueDate}" class="meta-item">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                                            <span th:text="${#temporals.format(task.dueDate, 'd MMM')}">12 Ene</span>
+                                        </span>
+
+                                        <span th:if="${task.assignedUserId}" class="meta-item">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                                            <span th:each="u : ${users}" th:if="${u.id == task.assignedUserId}" th:text="${u.name}">Asignado</span>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="task-actions">
+                                <a th:href="@{/tasks/edit/{id}(id=${task.id})}" class="action-btn" title="Editar">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                                </a>
+                                <a th:href="@{/tasks/archive/{id}(id=${task.id})}" class="action-btn" title="Archivar">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="21 8 21 21 3 21 3 8"></polyline><rect x="1" y="3" width="22" height="5"></rect><line x1="10" y1="12" x2="14" y2="12"></line></svg>
+                                </a>
+                                <a th:href="@{/tasks/delete/{id}(id=${task.id})}" class="action-btn danger" title="Eliminar"
+                                   onclick="return confirm('¿Eliminar esta tarea?');">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                                </a>
+                            </div>
+                        </div>
+
+                        <div th:if="${#lists.isEmpty(tasks)}" class="empty-state">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                            <p>¡Todo en orden! No hay tareas pendientes.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Archived tasks -->
+                <div th:if="${tab == 'archived'}">
+                    <div class="task-list">
+                        <div th:each="task : ${archivedTasks}" class="task-card completed-card">
+                            <div class="task-info">
+                                <div class="task-check completed">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="21 8 21 21 3 21 3 8"></polyline><rect x="1" y="3" width="22" height="5"></rect><line x1="10" y1="12" x2="14" y2="12"></line></svg>
+                                </div>
+                                <div class="task-details">
+                                    <p class="task-description" th:text="${task.description}" style="text-decoration:line-through; opacity:.7;">Descripción</p>
+                                    <div class="task-meta">
+                                        <span class="badge"
+                                              th:classappend="'badge-' + ${task.priority.cssClass}"
+                                              th:text="${task.priority.displayValue}">Media</span>
+                                        <span th:if="${task.dueDate}" class="meta-item">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                                            <span th:text="${#temporals.format(task.dueDate, 'd MMM')}">12 Ene</span>
+                                        </span>
+                                        <span th:if="${task.assignedUserId}" class="meta-item">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                                            <span th:each="u : ${users}" th:if="${u.id == task.assignedUserId}" th:text="${u.name}">Asignado</span>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="task-actions">
+                                <a th:href="@{/tasks/unarchive/{id}(id=${task.id})}" class="action-btn" title="Desarchivar">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="21 8 21 21 3 21 3 8"></polyline><rect x="1" y="3" width="22" height="5"></rect><polyline points="10 12 12 10 14 12"></polyline><line x1="12" y1="10" x2="12" y2="16"></line></svg>
+                                </a>
+                                <a th:href="@{/tasks/delete/{id}(id=${task.id})}" class="action-btn danger" title="Eliminar"
+                                   onclick="return confirm('¿Eliminar esta tarea permanentemente?');">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                                </a>
+                            </div>
+                        </div>
+
+                        <div th:if="${#lists.isEmpty(archivedTasks)}" class="empty-state">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><polyline points="21 8 21 21 3 21 3 8"></polyline><rect x="1" y="3" width="22" height="5"></rect><line x1="10" y1="12" x2="14" y2="12"></line></svg>
+                            <p>No hay tareas archivadas.</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<script th:src="@{/js/notifications.js}"></script>
+</body>
+</html>

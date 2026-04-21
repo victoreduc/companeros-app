@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Compras — Compañeros</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/x-icon" th:href="@{/favicon.ico}">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        (function(){
+            var t=localStorage.getItem('theme'), d=window.matchMedia('(prefers-color-scheme:dark)').matches;
+            if(t==='dark-mode'||(!t&&d)) document.documentElement.classList.add('dark-mode');
+        })();
+    </script>
+</head>
+<body>
+
+<div class="app-layout">
+
+    <nav class="app-nav">
+        <a th:href="@{/}" class="nav-brand">
+            <img th:src="@{/images/logo.png}" alt="Logo" class="nav-brand-logo" onerror="this.style.display='none'">
+            <span class="nav-brand-text">Compañeros</span>
+        </a>
+        <div class="nav-links">
+            <a th:href="@{/tasks}" class="nav-link">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"></path><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
+                <span>Tareas</span>
+            </a>
+            <a th:href="@{/shopping}" th:if="${currentUser.house == null or currentUser.house.shoppingEnabled}" class="nav-link active">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
+                <span>Compras</span>
+            </a>
+            <a th:href="@{/expenses}" th:if="${currentUser.house == null or currentUser.house.expensesEnabled}" class="nav-link">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+                <span>Gastos</span>
+            </a>
+            <a th:href="@{/house}" class="nav-link" th:if="${currentUser.house != null}">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+                <span>Mi Casa</span>
+            </a>
+            <a th:href="@{/settings}" class="nav-link">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                <span>Ajustes</span>
+            </a>
+        </div>
+        <div class="nav-notif-wrapper" id="nav-notif-wrapper">
+            <button type="button" class="nav-notif-btn" id="bell-btn" onclick="toggleNotifPanel()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+                <span>Notificaciones</span>
+                <span class="notif-badge" id="notif-badge" style="display:none">0</span>
+            </button>
+            <div class="notif-panel" id="notif-panel">
+                <div class="notif-panel-head">
+                    <span class="notif-panel-title">Notificaciones</span>
+                    <button type="button" class="notif-mark-all-btn" id="mark-all-btn" onclick="markAllNotifRead()" style="display:none">Marcar como leídas</button>
+                </div>
+                <div class="notif-list" id="notif-list"></div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="app-content">
+        <div class="container">
+
+            <div class="page-header">
+                <h1>Lista de la Compra 🛒</h1>
+                <p>Registra lo que hace falta en casa.</p>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card stat-warning">
+                    <div class="stat-title">Por comprar</div>
+                    <div class="stat-value" th:text="${pendingItemsCount}">0</div>
+                    <div class="stat-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
+                    </div>
+                </div>
+                <div class="stat-card stat-success">
+                    <div class="stat-title">Comprados</div>
+                    <div class="stat-value" th:text="${purchasedItemsCount}">0</div>
+                    <div class="stat-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                    </div>
+                </div>
+                <div class="stat-card stat-primary">
+                    <div class="stat-title">Total</div>
+                    <div class="stat-value" th:text="${totalItemsCount}">0</div>
+                    <div class="stat-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
+                    </div>
+                </div>
+            </div>
+
+            <div style="margin-bottom: 20px;">
+                <form th:action="@{/shopping/clear}" method="post"
+                      onsubmit="return confirm('¿Vaciar la lista? Se eliminarán todos los productos permanentemente.');">
+                    <button type="submit" class="btn btn-ghost btn-sm" style="color:var(--danger); border-color:var(--danger-bg); gap:8px;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                        Vaciar lista
+                    </button>
+                </form>
+            </div>
+
+            <div class="main-grid">
+                <div>
+                    <p class="section-label">Productos</p>
+
+                    <!-- Add item form -->
+                    <form th:action="@{/shopping/add}" th:object="${newItem}" method="post" class="add-form">
+                        <div class="add-form-row">
+                            <input type="text" th:field="*{name}" class="form-control"
+                                   placeholder="Añadir producto (ej. Leche, Pan…)" required>
+                            <button type="submit" class="btn btn-secondary btn-sm">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                                Añadir
+                            </button>
+                        </div>
+                    </form>
+
+                    <!-- Shopping list -->
+                    <div class="task-list">
+                        <div th:each="item : ${shoppingListItems}"
+                             class="task-card"
+                             th:classappend="${item.purchased} ? ' completed-card' : ''">
+
+                            <div class="task-info">
+                                <a th:href="@{/shopping/toggle/{id}(id=${item.id})}"
+                                   class="task-check"
+                                   th:classappend="${item.purchased} ? ' completed' : ''">
+                                    <svg th:if="${item.purchased}" xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                </a>
+                                <div class="task-details">
+                                    <p class="task-description"
+                                       th:text="${item.name}"
+                                       th:style="${item.purchased} ? 'text-decoration:line-through;' : ''">
+                                        Producto
+                                    </p>
+                                    <div class="task-meta">
+                                        <span th:if="${item.addedByUserId}" class="meta-item">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                                            <span th:each="u : ${users}" th:if="${u.id == item.addedByUserId}" th:text="'Añadido por ' + ${u.name}">Compañero</span>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="task-actions">
+                                <a th:href="@{/shopping/delete/{id}(id=${item.id})}" class="action-btn danger" title="Eliminar"
+                                   onclick="return confirm('¿Eliminar este producto?');">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                                </a>
+                            </div>
+                        </div>
+
+                        <div th:if="${#lists.isEmpty(shoppingListItems)}" class="empty-state">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
+                            <p>La lista está vacía. ¡La nevera aguanta!</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<script th:src="@{/js/notifications.js}"></script>
+</body>
+</html>

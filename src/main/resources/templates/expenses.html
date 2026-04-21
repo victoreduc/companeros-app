@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Gastos — Compañeros</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/x-icon" th:href="@{/favicon.ico}">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        (function(){
+            var t=localStorage.getItem('theme'), d=window.matchMedia('(prefers-color-scheme:dark)').matches;
+            if(t==='dark-mode'||(!t&&d)) document.documentElement.classList.add('dark-mode');
+        })();
+    </script>
+</head>
+<body>
+
+<div class="app-layout">
+
+    <nav class="app-nav">
+        <a th:href="@{/}" class="nav-brand">
+            <img th:src="@{/images/logo.png}" alt="Logo" class="nav-brand-logo" onerror="this.style.display='none'">
+            <span class="nav-brand-text">Compañeros</span>
+        </a>
+        <div class="nav-links">
+            <a th:href="@{/tasks}" class="nav-link">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"></path><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
+                <span>Tareas</span>
+            </a>
+            <a th:href="@{/shopping}" th:if="${currentUser.house == null or currentUser.house.shoppingEnabled}" class="nav-link">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
+                <span>Compras</span>
+            </a>
+            <a th:href="@{/expenses}" th:if="${currentUser.house == null or currentUser.house.expensesEnabled}" class="nav-link active">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+                <span>Gastos</span>
+            </a>
+            <a th:href="@{/house}" class="nav-link" th:if="${currentUser.house != null}">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+                <span>Mi Casa</span>
+            </a>
+            <a th:href="@{/settings}" class="nav-link">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                <span>Ajustes</span>
+            </a>
+        </div>
+        <div class="nav-notif-wrapper" id="nav-notif-wrapper">
+            <button type="button" class="nav-notif-btn" id="bell-btn" onclick="toggleNotifPanel()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+                <span>Notificaciones</span>
+                <span class="notif-badge" id="notif-badge" style="display:none">0</span>
+            </button>
+            <div class="notif-panel" id="notif-panel">
+                <div class="notif-panel-head">
+                    <span class="notif-panel-title">Notificaciones</span>
+                    <button type="button" class="notif-mark-all-btn" id="mark-all-btn" onclick="markAllNotifRead()" style="display:none">Marcar como leídas</button>
+                </div>
+                <div class="notif-list" id="notif-list"></div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="app-content">
+        <div class="container">
+
+            <div class="page-header" style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">
+                <div>
+                    <h1>Gastos 💸</h1>
+                    <p>Registra y reparte los gastos del piso.</p>
+                </div>
+                <button type="button" class="btn btn-primary" id="toggle-form-btn" onclick="toggleForm()">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                    Nuevo gasto
+                </button>
+            </div>
+
+            <!-- Flash messages -->
+            <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
+
+            <!-- New expense form (hidden by default) -->
+            <div id="expense-form-panel" class="expense-form-panel" style="display:none;">
+                <div class="settings-card" style="margin-bottom: 24px;">
+                    <h2 style="margin-bottom:20px;">Registrar gasto</h2>
+                    <form th:action="@{/expenses/add}" method="post" enctype="multipart/form-data" id="expense-form">
+                        <div class="settings-form-grid">
+
+                            <div class="form-group">
+                                <label for="title">Título</label>
+                                <input type="text" id="title" name="title" class="form-control"
+                                       placeholder="Ej. Factura del agua" required/>
+                            </div>
+                            <div class="form-group">
+                                <label for="totalAmount">Importe total (€)</label>
+                                <input type="number" id="totalAmount" name="totalAmount" class="form-control"
+                                       placeholder="0,00" step="0.01" min="0.01" required
+                                       oninput="recalcProportional()"/>
+                            </div>
+                            <div class="form-group form-group-full">
+                                <label for="description">Descripción breve</label>
+                                <input type="text" id="description" name="description" class="form-control"
+                                       placeholder="¿De qué es este gasto?"/>
+                            </div>
+                            <div class="form-group form-group-full">
+                                <label for="observations">Observaciones</label>
+                                <textarea id="observations" name="observations" class="form-control"
+                                          rows="2" placeholder="Notas adicionales…"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="date">Fecha</label>
+                                <input type="date" id="date" name="date" class="form-control"
+                                       th:value="${#temporals.format(#temporals.createToday(), 'yyyy-MM-dd')}"/>
+                            </div>
+
+                            <!-- Split mode -->
+                            <div class="form-group">
+                                <label>Modo de reparto</label>
+                                <div class="radio-group">
+                                    <label class="radio-option">
+                                        <input type="radio" name="splitMode" value="PROPORTIONAL" checked
+                                               onchange="setSplitMode('PROPORTIONAL')">
+                                        <span>Dividir proporcionalmente</span>
+                                    </label>
+                                    <label class="radio-option">
+                                        <input type="radio" name="splitMode" value="CUSTOM"
+                                               onchange="setSplitMode('CUSTOM')">
+                                        <span>Cantidad personalizada</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Members checklist -->
+                            <div class="form-group form-group-full">
+                                <label>¿Quién debe pagar?</label>
+                                <div class="member-checklist">
+                                    <div th:each="member : ${members}" class="member-check-row" th:id="'row-' + ${member.id}">
+                                        <label class="member-check-label">
+                                            <input type="checkbox" name="userIds" th:value="${member.id}"
+                                                   th:id="'cb-' + ${member.id}"
+                                                   onchange="recalcProportional()"
+                                                   checked/>
+                                            <div class="companion-avatar" th:text="${#strings.substring(member.name, 0, 1)}">J</div>
+                                            <span th:text="${member.name}">Nombre</span>
+                                        </label>
+                                        <!-- Custom amount input (hidden by default) -->
+                                        <div class="custom-amount-wrap" th:id="'custom-' + ${member.id}" style="display:none;">
+                                            <input type="number" th:name="'customAmount_' + ${member.id}"
+                                                   class="form-control custom-amount-input"
+                                                   placeholder="0,00" step="0.01" min="0"/>
+                                        </div>
+                                        <!-- Proportional preview -->
+                                        <span class="proportional-preview" th:id="'prev-' + ${member.id}">—</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- File attachments -->
+                            <div class="form-group form-group-full">
+                                <label>Adjuntar fotos <span style="font-weight:400; color:var(--text-2);">(máx. 3 imágenes — tickets, facturas…)</span></label>
+                                <div class="attachment-upload-area" id="upload-area" onclick="document.getElementById('attachments-input').click()">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                                    <span>Pulsa para seleccionar imágenes</span>
+                                    <span style="font-size:.75rem; color:var(--text-2);">JPG, PNG, WEBP · Máx. 10 MB por archivo</span>
+                                </div>
+                                <input type="file" id="attachments-input" name="attachments" accept="image/*"
+                                       multiple style="display:none;" onchange="previewAttachments(this)"/>
+                                <div id="attachment-previews" class="attachment-previews"></div>
+                            </div>
+
+                            <div class="form-group form-group-full" style="margin-top:4px; display:flex; gap:10px;">
+                                <button type="submit" class="btn btn-primary">Guardar gasto</button>
+                                <button type="button" class="btn btn-ghost" onclick="toggleForm()">Cancelar</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Tabs -->
+            <div class="tab-bar">
+                <a th:href="@{/expenses(tab='pending')}"
+                   class="tab-btn" th:classappend="${tab == 'pending'} ? ' active' : ''">
+                    Pendientes
+                </a>
+                <a th:href="@{/expenses(tab='paid')}"
+                   class="tab-btn" th:classappend="${tab == 'paid'} ? ' active' : ''">
+                    Pagados
+                </a>
+            </div>
+
+            <!-- Expense list -->
+            <div class="task-list" style="margin-top: 16px;">
+
+                <div th:each="expense : ${expenses}" class="expense-card">
+
+                    <!-- Card header -->
+                    <div class="expense-card-header">
+                        <div class="expense-card-title-wrap">
+                            <span class="expense-status-dot"
+                                  th:classappend="${expense.status.name() == 'PAID'} ? ' paid' : ' pending'"></span>
+                            <h3 class="expense-title" th:text="${expense.title}">Título</h3>
+                        </div>
+                        <div class="expense-card-meta-end">
+                            <span class="expense-total-badge" th:text="${#numbers.formatDecimal(expense.totalAmount, 1, 2) + ' €'}">0,00 €</span>
+                            <!-- Delete (creator or admin) -->
+                            <form th:if="${currentUser.id == expense.createdByUserId or (currentUser.role != null and currentUser.role.name() == 'HOUSE_ADMIN')}"
+                                  th:action="@{/expenses/{id}/delete(id=${expense.id})}" method="post"
+                                  onsubmit="return confirm('¿Eliminar este gasto?');" style="display:inline;">
+                                <button type="submit" class="action-btn danger" title="Eliminar">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Description & observations -->
+                    <p th:if="${expense.description != null and !expense.description.isEmpty()}"
+                       class="expense-desc" th:text="${expense.description}"></p>
+                    <p th:if="${expense.observations != null and !expense.observations.isEmpty()}"
+                       class="expense-obs" th:text="${expense.observations}"></p>
+
+                    <!-- Meta -->
+                    <div class="task-meta" style="margin: 8px 0;">
+                        <span class="meta-item">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                            <span th:text="${#temporals.format(expense.date, 'd MMM yyyy')}">Fecha</span>
+                        </span>
+                        <span class="meta-item">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                            <span>Registrado por
+                                <span th:each="u : ${members}" th:if="${u.id == expense.createdByUserId}" th:text="${u.name}">Alguien</span>
+                            </span>
+                        </span>
+                    </div>
+
+                    <!-- Attachments -->
+                    <div th:if="${!expense.attachments.isEmpty()}" class="expense-attachments">
+                        <p class="expense-shares-label">Adjuntos</p>
+                        <div class="attachment-thumb-row">
+                            <a th:each="att : ${expense.attachments}"
+                               th:href="@{/expenses/attachments/{f}(f=${att.storedFileName})}"
+                               target="_blank" class="attachment-thumb"
+                               th:title="${att.originalFileName}">
+                                <img th:src="@{/expenses/attachments/{f}(f=${att.storedFileName})}"
+                                     th:alt="${att.originalFileName}"/>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Shares -->
+                    <div th:if="${!expense.shares.isEmpty()}" class="expense-shares">
+                        <p class="expense-shares-label">Quién paga</p>
+                        <div th:each="share : ${expense.shares}" class="expense-share-row"
+                             th:classappend="${share.paid} ? ' share-paid' : ''">
+                            <div style="display:flex; align-items:center; gap:10px; flex:1;">
+                                <div class="companion-avatar sm"
+                                     th:each="u : ${members}" th:if="${u.id == share.userId}"
+                                     th:text="${#strings.substring(u.name, 0, 1)}">J</div>
+                                <span class="share-name"
+                                      th:each="u : ${members}" th:if="${u.id == share.userId}"
+                                      th:text="${u.name}">Nombre</span>
+                                <span class="share-amount" th:text="${#numbers.formatDecimal(share.amountOwed, 1, 2) + ' €'}">0,00 €</span>
+                            </div>
+                            <div style="display:flex; align-items:center; gap:8px;">
+                                <span th:if="${share.paid}" class="share-badge paid">Pagado</span>
+                                <span th:if="${!share.paid}" class="share-badge pending">Pendiente</span>
+                                <!-- Toggle button: visible only for the creator -->
+                                <form th:if="${currentUser.id == expense.createdByUserId}"
+                                      th:action="@{/expenses/{eid}/shares/{sid}/toggle(eid=${expense.id}, sid=${share.id})}"
+                                      method="post" style="display:inline;">
+                                    <button type="submit" class="btn btn-ghost btn-sm share-toggle-btn"
+                                            th:title="${share.paid} ? 'Marcar como pendiente' : 'Marcar como pagado'">
+                                        <svg th:if="${!share.paid}" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                        <svg th:if="${share.paid}" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                                        <span th:text="${share.paid} ? 'Desmarcar' : 'Marcar pagado'">Acción</span>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div th:if="${#lists.isEmpty(expenses)}" class="empty-state">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+                    <p th:text="${tab == 'paid'} ? '¡Sin gastos pagados todavía!' : '¡Sin gastos pendientes!'">Sin gastos.</p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+function toggleForm() {
+    var panel = document.getElementById('expense-form-panel');
+    var btn = document.getElementById('toggle-form-btn');
+    if (panel.style.display === 'none') {
+        panel.style.display = 'block';
+        btn.textContent = '✕ Cancelar';
+        recalcProportional();
+    } else {
+        panel.style.display = 'none';
+        btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg> Nuevo gasto';
+    }
+}
+
+function getCheckedUserIds() {
+    return Array.from(document.querySelectorAll('input[name="userIds"]:checked'))
+                .map(cb => cb.value);
+}
+
+function recalcProportional() {
+    var total = parseFloat(document.getElementById('totalAmount').value) || 0;
+    var checked = getCheckedUserIds();
+    var count = checked.length;
+    document.querySelectorAll('[id^="cb-"]').forEach(function(cb) {
+        var uid = cb.value;
+        var prev = document.getElementById('prev-' + uid);
+        if (prev) {
+            if (cb.checked && count > 0) {
+                prev.textContent = (total / count).toFixed(2) + ' €';
+            } else {
+                prev.textContent = '—';
+            }
+        }
+    });
+}
+
+function setSplitMode(mode) {
+    var isCustom = mode === 'CUSTOM';
+    document.querySelectorAll('[id^="custom-"]').forEach(function(el) {
+        var uid = el.id.replace('custom-', '');
+        var cb = document.getElementById('cb-' + uid);
+        el.style.display = (isCustom && cb && cb.checked) ? 'block' : 'none';
+    });
+    document.querySelectorAll('.proportional-preview').forEach(function(el) {
+        el.style.display = isCustom ? 'none' : 'inline';
+    });
+    if (!isCustom) recalcProportional();
+}
+
+// Update custom amount visibility when checkboxes change
+document.addEventListener('change', function(e) {
+    if (e.target && e.target.name === 'userIds') {
+        var uid = e.target.value;
+        var isCustom = document.querySelector('input[name="splitMode"]:checked').value === 'CUSTOM';
+        var customDiv = document.getElementById('custom-' + uid);
+        if (customDiv && isCustom) {
+            customDiv.style.display = e.target.checked ? 'block' : 'none';
+        }
+        recalcProportional();
+    }
+});
+
+// Initial calc
+recalcProportional();
+
+function previewAttachments(input) {
+    var container = document.getElementById('attachment-previews');
+    container.innerHTML = '';
+    var files = Array.from(input.files).slice(0, 3);
+
+    // Replace input files with max 3
+    if (input.files.length > 3) {
+        var dt = new DataTransfer();
+        files.forEach(function(f) { dt.items.add(f); });
+        input.files = dt.files;
+    }
+
+    files.forEach(function(file, i) {
+        var reader = new FileReader();
+        reader.onload = function(e) {
+            var wrap = document.createElement('div');
+            wrap.className = 'attachment-preview-item';
+            wrap.innerHTML =
+                '<img src="' + e.target.result + '" alt="' + file.name + '"/>' +
+                '<button type="button" onclick="removeAttachment(' + i + ')" title="Quitar">✕</button>' +
+                '<span>' + file.name + '</span>';
+            container.appendChild(wrap);
+        };
+        reader.readAsDataURL(file);
+    });
+
+    var area = document.getElementById('upload-area');
+    area.style.borderColor = files.length > 0 ? 'var(--primary)' : '';
+}
+
+function removeAttachment(index) {
+    var input = document.getElementById('attachments-input');
+    var dt = new DataTransfer();
+    Array.from(input.files).forEach(function(f, i) {
+        if (i !== index) dt.items.add(f);
+    });
+    input.files = dt.files;
+    previewAttachments(input);
+}
+</script>
+
+<script th:src="@{/js/notifications.js}"></script>
+</body>
+</html>
